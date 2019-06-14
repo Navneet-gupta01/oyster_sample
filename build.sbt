@@ -1,4 +1,4 @@
-ThisBuild / scalaVersion     := "2.13.0"
+ThisBuild / scalaVersion     := "2.12.8"
 ThisBuild / version          := "0.1.0-SNAPSHOT"
 ThisBuild / organization     := "com.navneetgupta"
 ThisBuild / organizationName := "navneetgupta"
@@ -21,7 +21,7 @@ addCompilerPlugin("org.scalameta" % "paradise" % "3.0.0-M11" cross CrossVersion.
 
 libraryDependencies ++= {
   val CatVersion = "2.0.0-M1"
-  val ZioVersion = "1.0-RC5"
+  val ZioVersion = "1.0-RC4"
   Seq(
 
     "org.scalactic"   %% "scalactic"                % "3.0.5",
