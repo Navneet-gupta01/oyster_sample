@@ -1,14 +1,33 @@
-import Dependencies._
-
 ThisBuild / scalaVersion     := "2.13.0"
 ThisBuild / version          := "0.1.0-SNAPSHOT"
-ThisBuild / organization     := "com.example"
-ThisBuild / organizationName := "example"
+ThisBuild / organization     := "com.navneetgupta"
+ThisBuild / organizationName := "navneetgupta"
+ThisBuild / name             := "oyster"
 
-lazy val root = (project in file("."))
-  .settings(
-    name := "oyster",
-    libraryDependencies += scalaTest % Test
+
+scalacOptions ++= Seq(
+  "-feature",
+  "-deprecation",
+  "-unchecked",
+  "-language:postfixOps",
+  "-Xfatal-warnings",
+  "-Ypartial-unification",
+  "-language:higherKinds",
+  "-language:implicitConversions"
+)
+
+addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.6")
+addCompilerPlugin("org.scalameta" % "paradise" % "3.0.0-M11" cross CrossVersion.full)
+
+libraryDependencies ++= {
+  val CatVersion = "2.0.0-M1"
+  val ZioVersion = "1.0-RC5"
+  Seq(
+
+    "org.scalactic"   %% "scalactic"                % "3.0.5",
+    "org.scalatest"   %% "scalatest"                % "3.0.5" % "test",
+    "org.typelevel"   %% "cats-core"                % CatVersion,
+    "org.scalaz"      %% "scalaz-zio"               % ZioVersion,
+    "org.scalaz"      %% "scalaz-zio-interop-cats"  % ZioVersion,
   )
-
-// See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.
+}
