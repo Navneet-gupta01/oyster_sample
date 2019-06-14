@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectFrameBounds" extendedState="6" fullScreen="true">
+    <option name="x" value="25" />
+    <option name="y" value="23" />
+    <option name="width" value="1655" />
+    <option name="height" value="1027" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+  </component>
+  <component name="SbtLocalSettings">
+    <option name="projectSyncType">
+      <map>
+        <entry key="$PROJECT_DIR$/../../evolution_gaming/akka-http-websockets" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../evolution_gaming/assignment" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../evolution_gaming/http4s-chatserver" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../evolution_gaming/http4s-websocket-example" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../evolution_gaming/websocket_apis" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../git_temp_to_learn/enigma" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../git_temp_to_learn/enigma-master" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../git_temp_to_learn/lambdaconf2017_workshop" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../git_temp_to_learn/trip_with_monads" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../mybitbuckets/github/akka_projects/ticketing_sys" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../mybitbuckets/github/conferences/akka_examples" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../mybitbuckets/github/conferences/cats_examples" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../mybitbuckets/github/fp_projects/fp-projects/realworld-starter-kit/realworld-freesio-scala" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../mybitbuckets/github/fp_projects/fp-projects/todo_list/todo_freesio" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../mybitbuckets/github/functional-scala" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../mybitbuckets/github/scala-pet-store" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../mybitbuckets/github/scala_libraries/scalaz_app" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../perseus/notification-service" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../perseus/template-service" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../perseus/user-service" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../toDelete/FunctionalProgrammingModeling" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../toDelete/errorhandling-with-optics-http4s" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../toDelete/expense_manager" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../toDelete/http4s-jwt" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../toDelete/http4s-test" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../toDelete/telegram-bot-fs2" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../toDelete/todo_freestyle" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../../toDelete/zio-workshop" value="PREVIEW" />
+        <entry key="$USER_HOME$/Downloads/oyster-card-master" value="PREVIEW" />
+      </map>
+    </option>
+  </component>
+  <component name="masterDetails">
+    <states>
+      <state key="ProjectJDKs.UI">
+        <settings>
+          <last-edited>1.8</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+    </states>
+  </component>
+</project>
