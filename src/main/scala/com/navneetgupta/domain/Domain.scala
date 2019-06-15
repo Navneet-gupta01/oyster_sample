@@ -16,6 +16,9 @@ object Direction extends Enumeration {
 case class Barrier(stationCode: String, journeyType: JourneyType, direction: Direction.Value, cost: Double)
 
 case class Journey(from: Barrier, to: Option[Barrier], date: Date)
-case class OysterCard(number: Long, balance: Double, lastJourney: Journey)
+case class OysterCard(number: Long, balance: Double, lastJourney: Option[Journey]= None, activeJourney: Boolean = false)
 
 case class Station(stationCode: String, stationName: String, zones: NonEmptyList[Int])
+
+sealed trait ValidationError extends Product with Serializable
+case class MinBalanceError(balance: Double) extends ValidationError

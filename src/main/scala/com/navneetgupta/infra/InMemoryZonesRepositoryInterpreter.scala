@@ -3,12 +3,9 @@ package com.navneetgupta.infra
 import cats.Applicative
 import cats.data.NonEmptyList
 import cats.implicits._
-import com.navneetgupta.domain
-import com.navneetgupta.domain.Station
+import com.navneetgupta.domain.{Station, ZonesRepository}
 
-trait ZonesRepository[F[_]] {
-  def getZonesByStationCode(stationCode: String): F[List[Int]]
-}
+
 class InMemoryZonesRepositoryInterpreter[F[_]: Applicative] extends ZonesRepository[F] {
   private val zonesCache: Map[String, Station] = Map(
     "HOL" -> Station("HOL", "Holborn", NonEmptyList(1,Nil)),
