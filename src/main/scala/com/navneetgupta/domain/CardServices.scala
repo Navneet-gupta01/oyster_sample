@@ -121,20 +121,38 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
       fromZones <- zoneServices.getZoneByStationCode(from.stationCode)
       toZones <- zoneServices.getZoneByStationCode(to.stationCode)
     } yield {
-      val minZonesCrossed = zoneServices.getMinNumberOfZonesCrossed(fromZones, toZones)
+      //      val minZonesCrossed = zoneServices.getMinNumberOfZonesCrossed(fromZones, toZones)
       // refund the excess fare charged
-      to.copy(fare = calculateTubeFare(fromZones ++ toZones , minZonesCrossed) - 3.2D)
+      val minFare = minFareCalc(fromZones,toZones)
+      println(s"calculated MinFare $minFare")
+      val barrierC = to.copy(fare = minFare - 3.2D)
+      println(s"barrier $barrierC")
+      barrierC
     }
   }
 
-  private def calculateTubeFare(crossedZones: List[Int], minNumberOfZonesCrossed: Long) : Double =
-    (crossedZones.contains(1), minNumberOfZonesCrossed) match {
+  private def minFareCalc(fromZones: List[Int], toZones: List[Int]): Double = {
+    println(s"fromZones : $fromZones ,toZones: $toZones")
+    fromZones.foldLeft(3.2D)((min, fromZone) =>
+      toZones.foldLeft(min)((localMin, toZone) => {
+        val fareC = calculateTubeFare(List(fromZone, toZone), toZone - fromZone + 1)
+        if (localMin > fareC) fareC else localMin
+      }))
+  }
+
+  private def calculateTubeFare(crossedZones: List[Int], minNumberOfZonesCrossed: Long) : Double = {
+    val cost = (crossedZones.contains(1), minNumberOfZonesCrossed) match {
       case (true, 1) => 2.5D
       case (true, 2) => 3.0D
       case (false, 1) => 2.0D
       case (false, 2) => 2.25D
       case _ => 3.2D
     }
+    println(s"zones crossed: $crossedZones, minZonesCrossed : $minNumberOfZonesCrossed, fare: $cost, contains: ${crossedZones.contains(1)}")
+    cost
+  }
+
+
 
 
 }

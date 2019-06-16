@@ -9,7 +9,7 @@ class ZoneServices[F[_]](zonesRepository: ZonesRepository[F]) {
 
   private def getMinNumberOfZonesCrossed(fromZones: List[Int], toZones: List[Int], minZonesCrossed: Int): Int = {
     fromZones match {
-      case Nil => minZonesCrossed
+      case Nil => minZonesCrossed + 1
       case head :: tail =>
         getMinNumberOfZonesCrossed(tail, toZones, toZones.foldLeft(minZonesCrossed)(
           (min, toZone) => if (toZone - head < min) toZone - head else min))
