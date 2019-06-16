@@ -27,3 +27,7 @@ class InMemoryCardsRepositoryInterpreter[F[_]: Monad] extends CardsRepository[F]
   override def updateCard(card: OysterCard): F[Option[OysterCard]] = cache.put(card.number, card).pure[F]
 
 }
+
+object InMemoryCardsRepositoryInterpreter {
+  def apply[F[_]: Monad](): InMemoryCardsRepositoryInterpreter[F] = new InMemoryCardsRepositoryInterpreter[F]()
+}

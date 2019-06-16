@@ -4,11 +4,11 @@ import java.util.Date
 
 import cats.{Applicative, Monad}
 import cats.data.EitherT
+import cats.derived.auto.pure
 import cats.implicits._
 
 class CardServices[F[_]](cardsRepository: CardsRepository[F],
-                         zoneServices: ZoneServices[F],
-                         fareAlgebra: FareAlgebra[F]) {
+                         zoneServices: ZoneServices[F]) {
 
   def createCard(amount: Option[Double]) = cardsRepository.createCard(amount)
 
@@ -34,6 +34,8 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
     } yield cardBalance).value
 
   def createJourney(barrier: Barrier, cardNumber: Long)(implicit M: Monad[F]) =
+  {
+    println("create Card Services")
     (for {
       card <- EitherT.fromOptionF[F, ValidationError, OysterCard](
         cardsRepository.getCard(cardNumber),
@@ -45,30 +47,38 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
       updateCard <- EitherT.fromOptionF[F, ValidationError, OysterCard](
         cardsRepository.updateCard(
           card.copy(balance = (card.balance - crossedBarrier.fare),
-                    lastBarrier = crossedBarrier.some)),
+            lastBarrier = crossedBarrier.copy(crossedAt = new Date()).some,
+          )),
         CreateJourneyError)
-    } yield updateCard).value
+    } yield crossedBarrier).value
+  }
+
+
 
   private def tubeJourney(barrier: Barrier, card: OysterCard)(
       implicit M: Monad[F]): EitherT[F, ValidationError, Barrier] =
     for {
-    _                           <- EitherT(minBalanceValidation(barrier, card))
-    updatedBarrierWihtFare      <- EitherT(processTubeJourney(barrier, card))
+    minBalanceValidation        <- EitherT{minBalanceValidation(barrier, card)}
+    print = println(minBalanceValidation)
+    updatedBarrierWihtFare      <- EitherT{processTubeJourney(minBalanceValidation, card)}
   } yield updatedBarrierWihtFare
 
   private def busJourney(barrier: Barrier, card: OysterCard)(
       implicit M: Monad[F]): EitherT[F, ValidationError, Barrier] =
     for {
-      _                       <- EitherT(minBalanceValidation(barrier, card))
-      updatedBarrierWihtFare  <- EitherT.rightT[Barrier](calculateBusFare(barrier))
-    } yield updatedBarrierWihtFare
+      minBalanceValidation    <- EitherT {minBalanceValidation(barrier, card)}
+      print = println(minBalanceValidation)
+      updatedBarrierWithFare  <- EitherT{calculateBusFare(minBalanceValidation)}
+    } yield updatedBarrierWithFare
 
   private def minBalanceValidation(barrier: Barrier, card: OysterCard)(
-      implicit M: Monad[F]): F[Either[ValidationError, Unit]] = {
+      implicit M: Monad[F]): F[Either[ValidationError, Barrier]] = {
     (CardServices.MIN_BALANCE_FOR_CHECK_IN
       .get(barrier.journeyType)
-      .filter(_ >= card.balance)
-      .fold(Either.left[ValidationError, Unit](MinBalanceError))(_ => Right()))
+      .filter(_ <= card.balance)
+      .fold({
+        Either.left[ValidationError, Barrier](MinBalanceError)})(v => {
+        Right(barrier)}))
       .pure[F]
   }
 
@@ -83,11 +93,11 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
                                    card: OysterCard)(implicit M: Monad[F]): F[Either[ValidationError, Barrier]] = {
     card.lastBarrier.fold(
       if(barrier.direction == Direction.CHECK_IN)
-        Either.right[ValidationError, Barrier](barrier.copy(fare = 3.2D, crossedAt =  new Date())).pure[F]
+        Either.right[ValidationError, Barrier](barrier.copy(fare = 3.2D)).pure[F]
       else Either.left[ValidationError, Barrier](BarrierNotCheckedIN).pure[F])(lastBarrier => {
       lastBarrier.journeyType match {
         case BusJourney =>  if(barrier.direction == Direction.CHECK_IN)
-                              Either.right[ValidationError, Barrier](barrier.copy(fare = 3.2D, crossedAt =  new Date())).pure[F]
+                              Either.right[ValidationError, Barrier](barrier.copy(fare = 3.2D)).pure[F]
                             else
                               Either.left[ValidationError, Barrier](BarrierNotCheckedIN).pure[F]
         case TubeJourney =>
@@ -97,14 +107,14 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
             case (Direction.CHECK_IN, Direction.CHECK_OUT) =>
               calculateMinTubeFare(barrier, lastBarrier).map(Either.right(_))
             case _ =>
-              Either.right[ValidationError, Barrier](barrier.copy(fare = 3.2D, crossedAt =  new Date())).pure[F]
+              Either.right[ValidationError, Barrier](barrier.copy(fare = 3.2D)).pure[F]
           }
       }
     })
   }
 
-  private def calculateBusFare(barrier: Barrier): Barrier =
-    barrier.copy(fare = 1.8D, crossedAt = new Date())
+  private def calculateBusFare(barrier: Barrier)(implicit M: Monad[F]): F[Either[ValidationError,Barrier]] =
+    Either.right[ValidationError, Barrier](barrier.copy(fare = 1.8D)).pure[F]
 
   private def calculateMinTubeFare(to: Barrier, from: Barrier)(implicit M: Monad[F]): F[Barrier] = {
     for {
@@ -113,7 +123,7 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
     } yield {
       val minZonesCrossed = zoneServices.getMinNumberOfZonesCrossed(fromZones, toZones)
       // refund the excess fare charged
-      to.copy(fare = calculateTubeFare(fromZones ++ toZones , minZonesCrossed) - 3.2D, crossedAt = new Date())
+      to.copy(fare = calculateTubeFare(fromZones ++ toZones , minZonesCrossed) - 3.2D)
     }
   }
 
@@ -130,9 +140,8 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
 }
 
 object CardServices {
-  val MIN_BALANCE_FOR_CHECK_IN = Map(BusJourney -> 1.8, TubeJourney -> 3.2)
+  val MIN_BALANCE_FOR_CHECK_IN = Map(BusJourney -> 1.8D, TubeJourney -> 3.2D)
 
   def apply[F[_]](cardsRepository: CardsRepository[F],
-            zoneServices: ZoneServices[F],
-            fareAlgebra: FareAlgebra[F]): CardServices[F] = new CardServices(cardsRepository, zoneServices, fareAlgebra)
+            zoneServices: ZoneServices[F]): CardServices[F] = new CardServices(cardsRepository, zoneServices)
 }

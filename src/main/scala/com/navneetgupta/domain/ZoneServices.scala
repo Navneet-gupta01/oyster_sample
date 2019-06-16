@@ -16,3 +16,7 @@ class ZoneServices[F[_]](zonesRepository: ZonesRepository[F]) {
     }
   }
 }
+
+object ZoneServices {
+  def apply[F[_]](zonesRepository: ZonesRepository[F]): ZoneServices[F] = new ZoneServices[F](zonesRepository)
+}

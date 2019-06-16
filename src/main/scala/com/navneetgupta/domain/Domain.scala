@@ -16,10 +16,10 @@ object Direction extends Enumeration {
 case class Barrier(stationCode: String, journeyType: JourneyType, direction: Direction.Value, crossedAt: Date, fare: Double)
 
 object Barrier {
-  def apply(stationCode: String, journeyType: JourneyType, direction: Direction.Value,crossedAt: Date)  =
+  def apply(stationCode: String, journeyType: JourneyType, direction: Direction.Value,crossedAt: Date): Barrier  =
     Barrier(stationCode, journeyType, direction,crossedAt, 0.0)
 
-  def apply(stationCode: String, journeyType: JourneyType, direction: Direction.Value)  =
+  def apply(stationCode: String, journeyType: JourneyType, direction: Direction.Value): Barrier  =
     Barrier(stationCode, journeyType, direction,new Date(), 0.0)
 }
 
