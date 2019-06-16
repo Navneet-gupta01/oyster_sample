@@ -27,7 +27,7 @@ libraryDependencies ++= {
     "org.scalactic"   %% "scalactic"                % "3.0.5",
     "org.scalatest"   %% "scalatest"                % "3.0.5" % "test",
     "org.typelevel"   %% "cats-core"                % CatVersion,
-    "org.scalaz"      %% "scalaz-zio"               % ZioVersion,
-    "org.scalaz"      %% "scalaz-zio-interop-cats"  % ZioVersion,
+    "org.typelevel"   %% "kittens"                  % "1.2.0",
+    "org.typelevel"   %% "cats-effect"              % "1.3.1"
   )
 }
