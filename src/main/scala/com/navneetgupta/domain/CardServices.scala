@@ -10,6 +10,8 @@ import cats.implicits._
 class CardServices[F[_]](cardsRepository: CardsRepository[F],
                          zoneServices: ZoneServices[F]) {
 
+  import CardServices._
+
   def createCard(amount: Option[Double]) = cardsRepository.createCard(amount)
 
   def updateBalance(amountToAdd: Double, cardNumber: Long)(
@@ -90,11 +92,11 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
                                   card: OysterCard)(implicit M: Monad[F]): F[Either[ValidationError, Barrier]] = {
     card.lastBarrier.fold(
       if(barrier.direction == Direction.CHECK_IN)
-        Either.right[ValidationError, Barrier](barrier.copy(fare = 3.2D)).pure[F]
+        Either.right[ValidationError, Barrier](barrier.copy(fare = MAX_TUBE_JOURNEY_FARE)).pure[F]
       else Either.left[ValidationError, Barrier](BarrierNotCheckedIN).pure[F])(lastBarrier => {
       lastBarrier.journeyType match {
         case BusJourney =>  if(barrier.direction == Direction.CHECK_IN)
-          Either.right[ValidationError, Barrier](barrier.copy(fare = 3.2D)).pure[F]
+          Either.right[ValidationError, Barrier](barrier.copy(fare = MAX_TUBE_JOURNEY_FARE)).pure[F]
         else
           Either.left[ValidationError, Barrier](BarrierNotCheckedIN).pure[F]
         case TubeJourney =>
@@ -104,14 +106,14 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
             case (Direction.CHECK_IN, Direction.CHECK_OUT) =>
               calculateMinTubeFare(barrier, lastBarrier).map(Either.right(_))
             case _ =>
-              Either.right[ValidationError, Barrier](barrier.copy(fare = 3.2D)).pure[F]
+              Either.right[ValidationError, Barrier](barrier.copy(fare = MAX_TUBE_JOURNEY_FARE)).pure[F]
           }
       }
     })
   }
 
   private def calculateBusFare(barrier: Barrier)(implicit M: Monad[F]): F[Either[ValidationError,Barrier]] =
-    Either.right[ValidationError, Barrier](barrier.copy(fare = 1.8D)).pure[F]
+    Either.right[ValidationError, Barrier](barrier.copy(fare = MAX_BUS_JOURNEY_FARE)).pure[F]
 
   private def calculateMinTubeFare(to: Barrier, from: Barrier)(implicit M: Monad[F]): F[Barrier] = {
     for {
@@ -121,13 +123,13 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
       //      val minZonesCrossed = zoneServices.getMinNumberOfZonesCrossed(fromZones, toZones)
       // refund the excess fare charged
       val minFare = minFareCalc(fromZones,toZones)
-      val barrierC = to.copy(fare = minFare - 3.2D)
+      val barrierC = to.copy(fare = minFare - MAX_TUBE_JOURNEY_FARE)
       barrierC
     }
   }
 
   private def minFareCalc(fromZones: List[Int], toZones: List[Int]): Double = {
-    fromZones.foldLeft(3.2D)((min, fromZone) =>
+    fromZones.foldLeft(MAX_TUBE_JOURNEY_FARE)((min, fromZone) =>
       toZones.foldLeft(min)((localMin, toZone) => {
         val fareC = calculateTubeFare(List(fromZone, toZone), toZone - fromZone + 1)
         if (localMin > fareC) fareC else localMin
@@ -140,14 +142,17 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
       case (true, 2) => 3.0D
       case (false, 1) => 2.0D
       case (false, 2) => 2.25D
-      case _ => 3.2D
+      case _ => MAX_TUBE_JOURNEY_FARE
     }
     cost
   }
 }
 
 object CardServices {
-  val MIN_BALANCE_FOR_CHECK_IN = Map(BusJourney -> 1.8D, TubeJourney -> 3.2D)
+  val MAX_BUS_JOURNEY_FARE = 1.8D
+  val MAX_TUBE_JOURNEY_FARE = 3.2D
+  val MIN_BALANCE_FOR_CHECK_IN = Map(BusJourney -> MAX_BUS_JOURNEY_FARE, TubeJourney -> MAX_TUBE_JOURNEY_FARE)
+
 
   def apply[F[_]](cardsRepository: CardsRepository[F],
                   zoneServices: ZoneServices[F]): CardServices[F] = new CardServices(cardsRepository, zoneServices)
