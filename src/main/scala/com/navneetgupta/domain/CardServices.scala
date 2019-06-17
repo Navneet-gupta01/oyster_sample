@@ -67,7 +67,7 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
     implicit M: Monad[F]): EitherT[F, ValidationError, Barrier] =
     for {
       minBalanceValidation    <- EitherT {minBalanceValidation(barrier, card)}
-      updatedBarrierWithFare  <- EitherT{calculateBusFare(minBalanceValidation)}
+      updatedBarrierWithFare  <- EitherT{calculateBusFare(minBalanceValidation, card)}
     } yield updatedBarrierWithFare
 
   private def minBalanceValidation(barrier: Barrier, card: OysterCard)(
@@ -112,8 +112,15 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
     })
   }
 
-  private def calculateBusFare(barrier: Barrier)(implicit M: Monad[F]): F[Either[ValidationError,Barrier]] =
-    Either.right[ValidationError, Barrier](barrier.copy(fare = MAX_BUS_JOURNEY_FARE)).pure[F]
+  private def calculateBusFare(barrier: Barrier, card: OysterCard)(implicit M: Monad[F]): F[Either[ValidationError,Barrier]] =
+    (barrier.direction, card.lastBarrier) match {
+      case (Direction.CHECK_OUT, Some(lastbarrier)) if (lastbarrier.journeyType == BusJourney && lastbarrier.direction == Direction.CHECK_IN) =>
+        // already deducted while checkIn donot deduct again
+        Either.right[ValidationError, Barrier](barrier).pure[F]
+      case _ =>
+        // In any other case dedcut the fare.
+        Either.right[ValidationError, Barrier](barrier.copy(fare = MAX_BUS_JOURNEY_FARE)).pure[F]
+    }
 
   private def calculateMinTubeFare(to: Barrier, from: Barrier)(implicit M: Monad[F]): F[Barrier] = {
     for {

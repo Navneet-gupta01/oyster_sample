@@ -19,3 +19,5 @@ and follow the instruction.
 ```
 sbt test
 ```
+
+* Any Illegal Station Entry will deduct maximum fare for (CheckIn/Checkout Pair).
