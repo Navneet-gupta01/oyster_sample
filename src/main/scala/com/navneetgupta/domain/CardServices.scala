@@ -35,7 +35,6 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
 
   def createJourney(barrier: Barrier, cardNumber: Long)(implicit M: Monad[F]) =
   {
-    println("create Card Services")
     (for {
       card <- EitherT.fromOptionF[F, ValidationError, OysterCard](
         cardsRepository.getCard(cardNumber),
@@ -59,7 +58,6 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
     implicit M: Monad[F]): EitherT[F, ValidationError, Barrier] =
     for {
       minBalanceValidation        <- EitherT{minBalanceValidation(barrier, card)}
-      print = println(minBalanceValidation)
       updatedBarrierWihtFare      <- EitherT{processTubeJourney(minBalanceValidation, card)}
     } yield updatedBarrierWihtFare
 
@@ -67,7 +65,6 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
     implicit M: Monad[F]): EitherT[F, ValidationError, Barrier] =
     for {
       minBalanceValidation    <- EitherT {minBalanceValidation(barrier, card)}
-      print = println(minBalanceValidation)
       updatedBarrierWithFare  <- EitherT{calculateBusFare(minBalanceValidation)}
     } yield updatedBarrierWithFare
 
@@ -124,15 +121,12 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
       //      val minZonesCrossed = zoneServices.getMinNumberOfZonesCrossed(fromZones, toZones)
       // refund the excess fare charged
       val minFare = minFareCalc(fromZones,toZones)
-      println(s"calculated MinFare $minFare")
       val barrierC = to.copy(fare = minFare - 3.2D)
-      println(s"barrier $barrierC")
       barrierC
     }
   }
 
   private def minFareCalc(fromZones: List[Int], toZones: List[Int]): Double = {
-    println(s"fromZones : $fromZones ,toZones: $toZones")
     fromZones.foldLeft(3.2D)((min, fromZone) =>
       toZones.foldLeft(min)((localMin, toZone) => {
         val fareC = calculateTubeFare(List(fromZone, toZone), toZone - fromZone + 1)
@@ -148,7 +142,6 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
       case (false, 2) => 2.25D
       case _ => 3.2D
     }
-    println(s"zones crossed: $crossedZones, minZonesCrossed : $minNumberOfZonesCrossed, fare: $cost, contains: ${crossedZones.contains(1)}")
     cost
   }
 }

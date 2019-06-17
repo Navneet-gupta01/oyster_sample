@@ -24,7 +24,6 @@ class InMemoryCardsRepositoryInterpreter[F[_]: Monad] extends CardsRepository[F]
   override def getCard(cardNumber: Long): F[Option[OysterCard]] = cache.get(cardNumber).pure[F]
 
   override def updateCard(card: OysterCard): F[Option[OysterCard]] = {
-    println(s"Updating card: $card")
     cache.put(card.number, card).pure[F] *> cache.get(card.number).pure[F]
   }
 

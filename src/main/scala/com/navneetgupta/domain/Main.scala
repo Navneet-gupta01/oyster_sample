@@ -124,7 +124,8 @@ object Programs {
       })(option => {
         if(option > 0 && option < 6)
           processOption[F](option,cardServices) *> loop[F](cardServices)
-        else loop[F](cardServices)
+        else if (option == 6) putStrLn("Exiting Application !!")
+        else putStrLn("Invalid Option Selected. Exiting Application !!")
       })
     } yield ()
 
@@ -149,7 +150,6 @@ object Programs {
     def validateLong(num: String): Option[Long] = scala.util.Try(num.toLong).toOption
     def validateTuple2(tuple: (String , String)): Option[(Long, Double)] =  (scala.util.Try(tuple._1.toLong).toOption, scala.util.Try(tuple._2.toDouble).toOption).bisequence
     def validateTuple3(tuple: (String , String, String)): Option[(Long, Direction.Value, String)] =  {
-      println(s"Got Options $tuple")
       (scala.util.Try(tuple._3.toLong).toOption, getDirection(tuple._2)).bisequence.map(a => (a._1, a._2, tuple._1))
     }
   }

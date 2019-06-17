@@ -14,4 +14,8 @@ and follow the instruction.
 4.	For now not storing journey history as not required. Can be incooperated further into the solution.     
 
 
+## Testing The Application
 
+```
+sbt test
+```
