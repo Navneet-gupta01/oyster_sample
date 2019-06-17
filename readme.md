@@ -21,3 +21,7 @@ sbt test
 ```
 
 * Any Illegal Station Entry will deduct maximum fare for (CheckIn/Checkout Pair).
+* Edge cases Not Handled  
+	-- User touching multiple time at same station within short span of time while system still processing, they should not be charged more than once.  
+	-- Checking IN and Checking OUT at same station within some stipulated timeout, User should not be charged, ore should be refunded. Ex: User by mistake checkin and then tried to avoid the trip by checkout immediately.  
+	-- Checking for illegal station codes.  Illegal station codes checkin/checkout will be charged at max rate.  
