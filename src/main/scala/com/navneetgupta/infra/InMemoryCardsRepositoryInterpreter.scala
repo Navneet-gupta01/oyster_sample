@@ -1,9 +1,8 @@
 package com.navneetgupta.infra
 
 import cats.Monad
-import cats.implicits._
 import com.navneetgupta.domain.{CardsRepository, OysterCard}
-
+import cats.implicits._
 import scala.collection.concurrent.TrieMap
 import scala.util.Random
 
@@ -24,7 +23,10 @@ class InMemoryCardsRepositoryInterpreter[F[_]: Monad] extends CardsRepository[F]
 
   override def getCard(cardNumber: Long): F[Option[OysterCard]] = cache.get(cardNumber).pure[F]
 
-  override def updateCard(card: OysterCard): F[Option[OysterCard]] = cache.put(card.number, card).pure[F]
+  override def updateCard(card: OysterCard): F[Option[OysterCard]] = {
+    println(s"Updating card: $card")
+    cache.put(card.number, card).pure[F] *> cache.get(card.number).pure[F]
+  }
 
 }
 

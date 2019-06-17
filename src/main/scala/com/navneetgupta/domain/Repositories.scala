@@ -1,6 +1,5 @@
 package com.navneetgupta.domain
 
-
 trait ZonesRepository[F[_]] {
   def getZonesByStationCode(stationCode: String): F[List[Int]]
 }

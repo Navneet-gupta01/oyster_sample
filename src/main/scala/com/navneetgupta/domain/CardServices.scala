@@ -1,10 +1,10 @@
 package com.navneetgupta.domain
 
+
 import java.util.Date
 
-import cats.{Applicative, Monad}
+import cats.{Monad}
 import cats.data.EitherT
-import cats.derived.auto.pure
 import cats.implicits._
 
 class CardServices[F[_]](cardsRepository: CardsRepository[F],
@@ -13,7 +13,7 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
   def createCard(amount: Option[Double]) = cardsRepository.createCard(amount)
 
   def updateBalance(amountToAdd: Double, cardNumber: Long)(
-      implicit M: Monad[F]): F[Either[ValidationError, OysterCard]] = {
+    implicit M: Monad[F]): F[Either[ValidationError, OysterCard]] = {
     (for {
       card <- EitherT.fromOptionF[F, ValidationError, OysterCard](
         cardsRepository.getCard(cardNumber),
@@ -26,7 +26,7 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
   }
 
   def getBalance(cardNumber: Long)(
-      implicit M: Monad[F]): F[Either[ValidationError, Double]] =
+    implicit M: Monad[F]): F[Either[ValidationError, Double]] =
     (for {
       cardBalance <- EitherT.fromOptionF[F, ValidationError, Double](
         cardsRepository.getCard(cardNumber).fmap(_.map(_.balance)),
@@ -56,15 +56,15 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
 
 
   private def tubeJourney(barrier: Barrier, card: OysterCard)(
-      implicit M: Monad[F]): EitherT[F, ValidationError, Barrier] =
+    implicit M: Monad[F]): EitherT[F, ValidationError, Barrier] =
     for {
-    minBalanceValidation        <- EitherT{minBalanceValidation(barrier, card)}
-    print = println(minBalanceValidation)
-    updatedBarrierWihtFare      <- EitherT{processTubeJourney(minBalanceValidation, card)}
-  } yield updatedBarrierWihtFare
+      minBalanceValidation        <- EitherT{minBalanceValidation(barrier, card)}
+      print = println(minBalanceValidation)
+      updatedBarrierWihtFare      <- EitherT{processTubeJourney(minBalanceValidation, card)}
+    } yield updatedBarrierWihtFare
 
   private def busJourney(barrier: Barrier, card: OysterCard)(
-      implicit M: Monad[F]): EitherT[F, ValidationError, Barrier] =
+    implicit M: Monad[F]): EitherT[F, ValidationError, Barrier] =
     for {
       minBalanceValidation    <- EitherT {minBalanceValidation(barrier, card)}
       print = println(minBalanceValidation)
@@ -72,7 +72,7 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
     } yield updatedBarrierWithFare
 
   private def minBalanceValidation(barrier: Barrier, card: OysterCard)(
-      implicit M: Monad[F]): F[Either[ValidationError, Barrier]] = {
+    implicit M: Monad[F]): F[Either[ValidationError, Barrier]] = {
     (CardServices.MIN_BALANCE_FOR_CHECK_IN
       .get(barrier.journeyType)
       .filter(_ <= card.balance)
@@ -89,17 +89,17 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
 
 
   private def processTubeJourney(
-                                   barrier: Barrier,
-                                   card: OysterCard)(implicit M: Monad[F]): F[Either[ValidationError, Barrier]] = {
+                                  barrier: Barrier,
+                                  card: OysterCard)(implicit M: Monad[F]): F[Either[ValidationError, Barrier]] = {
     card.lastBarrier.fold(
       if(barrier.direction == Direction.CHECK_IN)
         Either.right[ValidationError, Barrier](barrier.copy(fare = 3.2D)).pure[F]
       else Either.left[ValidationError, Barrier](BarrierNotCheckedIN).pure[F])(lastBarrier => {
       lastBarrier.journeyType match {
         case BusJourney =>  if(barrier.direction == Direction.CHECK_IN)
-                              Either.right[ValidationError, Barrier](barrier.copy(fare = 3.2D)).pure[F]
-                            else
-                              Either.left[ValidationError, Barrier](BarrierNotCheckedIN).pure[F]
+          Either.right[ValidationError, Barrier](barrier.copy(fare = 3.2D)).pure[F]
+        else
+          Either.left[ValidationError, Barrier](BarrierNotCheckedIN).pure[F]
         case TubeJourney =>
           (lastBarrier.direction, barrier.direction) match {
             case (Direction.CHECK_OUT, Direction.CHECK_OUT) =>
@@ -151,15 +151,11 @@ class CardServices[F[_]](cardsRepository: CardsRepository[F],
     println(s"zones crossed: $crossedZones, minZonesCrossed : $minNumberOfZonesCrossed, fare: $cost, contains: ${crossedZones.contains(1)}")
     cost
   }
-
-
-
-
 }
 
 object CardServices {
   val MIN_BALANCE_FOR_CHECK_IN = Map(BusJourney -> 1.8D, TubeJourney -> 3.2D)
 
   def apply[F[_]](cardsRepository: CardsRepository[F],
-            zoneServices: ZoneServices[F]): CardServices[F] = new CardServices(cardsRepository, zoneServices)
+                  zoneServices: ZoneServices[F]): CardServices[F] = new CardServices(cardsRepository, zoneServices)
 }
