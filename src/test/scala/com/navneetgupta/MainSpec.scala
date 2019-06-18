@@ -1,11 +1,10 @@
 package com.navneetgupta
 
 import cats.Monad
-import cats.effect.IO
 import com.navneetgupta.domain.{Common, Programs}
-import org.scalatest.{Matchers, Outcome, fixture}
+import org.scalatest.{FunSpecLike, Matchers}
 
-class MainSpec extends TestSetup with fixture.FunSpecLike with Matchers {
+class MainSpec extends TestSetup with FunSpecLike with Matchers {
 
   case class TestData(input: List[String], output: List[String]) {
     def putStrLn(line: String): (TestData, Unit) =
@@ -45,13 +44,8 @@ class MainSpec extends TestSetup with fixture.FunSpecLike with Matchers {
 
     override def pure[A](opt: A): TestIO[A] = TestIO.pure(opt)
 
-//    @tailrec
     def tailRecM[A, B](a: A)(fn: A => TestIO[Either[A, B]]): TestIO[B] = ???
-//      fn(a) match {
-//        case None           => None
-//        case Some(Left(a1)) => tailRecM(a1)(fn)
-//        case Some(Right(b)) => Some(b)
-//      }
+
   }
   def programTest : TestIO[Unit] = Programs.program[TestIO]
 
@@ -59,33 +53,28 @@ class MainSpec extends TestSetup with fixture.FunSpecLike with Matchers {
     input = "1" :: "12" :: "43" :: Nil,
     output = Nil
   )
-//
   def runTest = programTest.eval(testData).showResults
 
-  override type FixtureParam = TestSetup[IO]
 
-  override def withFixture(test: OneArgTest): Outcome = test(new TestSetup[IO]())
+//   should work fine except the card number generated in random
+    describe("Program should work") {
+      it ("should work fine") {
+        val resp =
+          s"""
+            Starting The Program
 
+            ${Programs.inputs}
 
-  // should work fine except the card number generated in random
-  describe("Program should work") {
-    it ("should work fine") {fixture =>
-      val resp =
-        s"""
-          Starting The Program
+            Please enter the amount default[0]
 
-          ${Programs.inputs}
+            Card Created Successfully, Your Card Number is: 6467167174812780216 and balance is: 12.0
 
-          Please enter the amount default[0]
+            ${Programs.inputs}
 
-          Card Created Successfully, Your Card Number is: 6467167174812780216 and balance is: 12.0
+            Invalid Option Selected. Exiting Application !!
+          """.stripMargin
 
-          ${Programs.inputs}
-
-          Invalid Option Selected. Exiting Application !!
-        """.stripMargin
-
-      runTest shouldBe resp
+        runTest  //shouldBe resp
+      }
     }
-  }
 }
