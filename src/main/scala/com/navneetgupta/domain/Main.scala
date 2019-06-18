@@ -8,7 +8,7 @@ import com.navneetgupta.infra.{InMemoryCardsRepositoryInterpreter, InMemoryZones
 
 object Main extends IOApp {
   implicit val ConsoleIO = new Common.Console[IO] {
-    def putStrLn(line: String): IO[Unit] = IO(println(line))
+    def putStrLn(line: String): IO[Unit] = IO(println(s"$line \n"))
 
     def readLn(): IO[String] = IO(scala.io.StdIn.readLine)
   }
@@ -26,17 +26,17 @@ object Programs {
 
   val inputs =
     """
-       Please select Options from below Menu
-       [1] Create a Card
-       [2] Recharge Card
-       [3] Get Balance
-       [4] Proceed With Bus Journey
-       [5] Proceed With Tube Journey
-       [6] Exit
+Please select Options from below Menu
+  [1] Create a Card
+  [2] Recharge Card
+  [3] Get Balance
+  [4] Proceed With Bus Journey
+  [5] Proceed With Tube Journey
+  [6] Exit
     """.stripMargin
 
   def createCardOption[F[_]: Common.Console: Monad](cardServices: CardServices[F]): F[Unit] = for {
-    _ <- putStrLn("Please enter the amount default 0")
+    _ <- putStrLn("Please enter the amount default[0]")
     amount <- readLn()
     amountValidate <- Validation.validateDouble(amount).pure[F]
     card <- cardServices.createCard(amountValidate)
