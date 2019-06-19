@@ -1,17 +1,21 @@
 package com.navneetgupta
 
 import cats.Monad
-import com.navneetgupta.domain.{Common, Programs}
+import cats.effect.IO
+import com.navneetgupta.domain.{Common, Programs, RandomGenerator}
 import org.scalatest.{FunSpecLike, Matchers}
 
 class MainSpec extends TestSetup with FunSpecLike with Matchers {
 
-  case class TestData(input: List[String], output: List[String]) {
+  case class TestData(input: List[String], output: List[String], nums: List[Long]) {
     def putStrLn(line: String): (TestData, Unit) =
       (copy(output = line :: output), Unit)
 
     def readLn(): (TestData, String) =
       (copy(input = input.drop(1)), input.head)
+
+    def getNextLong: (TestData, Long) =
+      (copy(nums = nums.drop(1)), nums.head)
 
     def showResults = output.reverse.mkString("\n")
   }
@@ -38,6 +42,10 @@ class MainSpec extends TestSetup with FunSpecLike with Matchers {
 
       def readLn(): TestIO[String] = TestIO(t => t.readLn())
     }
+
+    implicit val RandomGeneratorIO = new RandomGenerator[TestIO] {
+      def getNextLong: TestIO[Long] = TestIO(t => t.getNextLong)
+    }
   }
   implicit val testIOMonad: Monad[TestIO] = new Monad[TestIO] {
     override def flatMap[A, B](opt: TestIO[A])(fn: A => TestIO[B]): TestIO[B] = opt.flatMap(fn)
@@ -51,7 +59,8 @@ class MainSpec extends TestSetup with FunSpecLike with Matchers {
 
   val testData = TestData(
     input = "1" :: "12" :: "43" :: Nil,
-    output = Nil
+    output = Nil,
+    nums = 1 :: Nil
   )
   def runTest = programTest.eval(testData).showResults
 
@@ -60,21 +69,14 @@ class MainSpec extends TestSetup with FunSpecLike with Matchers {
     describe("Program should work") {
       it ("should work fine") {
         val resp =
-          s"""
-            Starting The Program
-
+          s"""Starting The Program
             ${Programs.inputs}
-
             Please enter the amount default[0]
-
-            Card Created Successfully, Your Card Number is: 6467167174812780216 and balance is: 12.0
-
+            Card Created Successfully, Your Card Number is: 1 and balance is: 12.0
             ${Programs.inputs}
+            Invalid Option Selected. Exiting Application !!""".stripMargin
 
-            Invalid Option Selected. Exiting Application !!
-          """.stripMargin
-
-        runTest  //shouldBe resp
+        runTest.replace(" ", "") shouldBe resp.replace(" ", "")
       }
     }
 }

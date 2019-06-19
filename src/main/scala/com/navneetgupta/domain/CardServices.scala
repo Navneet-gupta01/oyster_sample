@@ -7,7 +7,7 @@ import cats.{Monad}
 import cats.data.EitherT
 import cats.implicits._
 
-class CardServices[F[_]](cardsRepository: CardsRepository[F],
+class CardServices[F[_]: RandomGenerator](cardsRepository: CardsRepository[F],
                          zoneServices: ZoneServices[F]) {
 
   import CardServices._
@@ -161,6 +161,6 @@ object CardServices {
   val MIN_BALANCE_FOR_CHECK_IN = Map(BusJourney -> MAX_BUS_JOURNEY_FARE, TubeJourney -> MAX_TUBE_JOURNEY_FARE)
 
 
-  def apply[F[_]](cardsRepository: CardsRepository[F],
+  def apply[F[_]: RandomGenerator](cardsRepository: CardsRepository[F],
                   zoneServices: ZoneServices[F]): CardServices[F] = new CardServices(cardsRepository, zoneServices)
 }

@@ -1,25 +1,25 @@
 package com.navneetgupta.infra
 
 import cats.Monad
-import com.navneetgupta.domain.{CardsRepository, OysterCard}
+import com.navneetgupta.domain.{CardsRepository, OysterCard, RandomGenerator}
 import cats.implicits._
+
 import scala.collection.concurrent.TrieMap
-import scala.util.Random
 
 
-class InMemoryCardsRepositoryInterpreter[F[_]: Monad] extends CardsRepository[F] {
+class InMemoryCardsRepositoryInterpreter[F[_]: Monad: RandomGenerator] extends CardsRepository[F] {
   private val cache = new TrieMap[Long, OysterCard]
 
-  private val random = new Random
   private val defaultAmount = 0.0
 
+  def nextLong() = RandomGenerator[F].getNextLong
 
-  override def createCard(amount: Option[Double]): F[OysterCard] = {
-    val cardToSave = OysterCard(random.nextLong, amount.getOrElse(defaultAmount))
-    cache.put(cardToSave.number,cardToSave)
-    cardToSave.pure[F]
-
-  }
+  override def createCard(amount: Option[Double]): F[OysterCard] =
+    for {
+      id <- nextLong()
+      cardToSave = OysterCard(id, amount.getOrElse(defaultAmount))
+      _ = cache.put(cardToSave.number,cardToSave)
+  } yield cardToSave
 
   override def getCard(cardNumber: Long): F[Option[OysterCard]] = cache.get(cardNumber).pure[F]
 
@@ -30,5 +30,5 @@ class InMemoryCardsRepositoryInterpreter[F[_]: Monad] extends CardsRepository[F]
 }
 
 object InMemoryCardsRepositoryInterpreter {
-  def apply[F[_]: Monad](): InMemoryCardsRepositoryInterpreter[F] = new InMemoryCardsRepositoryInterpreter[F]()
+  def apply[F[_]: Monad: RandomGenerator](): InMemoryCardsRepositoryInterpreter[F] = new InMemoryCardsRepositoryInterpreter[F]()
 }

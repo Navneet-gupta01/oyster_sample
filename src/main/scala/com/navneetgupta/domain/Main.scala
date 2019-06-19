@@ -12,7 +12,9 @@ object Main extends IOApp {
 
     def readLn(): IO[String] = IO(scala.io.StdIn.readLine)
   }
-
+  implicit val RandomGeneratorIO = new RandomGenerator[IO] {
+    override def getNextLong: IO[Long] = IO.pure(scala.util.Random.nextLong())
+  }
 
   override def run(args: List[String]): IO[ExitCode] = for {
     _ <- Programs.program[IO]
@@ -35,7 +37,7 @@ Please select Options from below Menu
   [6] Exit
     """.stripMargin
 
-  def createCardOption[F[_]: Common.Console: Monad](cardServices: CardServices[F]): F[Unit] = for {
+  def createCardOption[F[_]: Common.Console: Monad ](cardServices: CardServices[F]): F[Unit] = for {
     _ <- putStrLn("Please enter the amount default[0]")
     amount <- readLn()
     amountValidate <- Validation.validateDouble(amount).pure[F]
@@ -155,7 +157,7 @@ Please select Options from below Menu
   }
 
 
-  def program[F[_]:Common.Console: Monad]: F[Unit] =
+  def program[F[_]:Common.Console: Monad: RandomGenerator]: F[Unit] =
     for {
       _ <- putStrLn("Starting The Program")
       cardRepositories = InMemoryCardsRepositoryInterpreter[F]

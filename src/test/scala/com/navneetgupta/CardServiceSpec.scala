@@ -8,6 +8,9 @@ import scala.util.Random
 
 
 class CardServiceSpec extends TestSetup with fixture.FunSpecLike with Matchers {
+  implicit val RandomGeneratorIO = new RandomGenerator[IO] {
+    def getNextLong: IO[Long] = IO.pure(scala.util.Random.nextLong())
+  }
   override type FixtureParam = TestSetup[IO]
 
   override def withFixture(test: OneArgTest): Outcome = test(new TestSetup[IO]())
