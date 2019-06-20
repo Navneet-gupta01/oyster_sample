@@ -159,7 +159,7 @@ Please select Options from below Menu
 
   def program[F[_]:Common.Console: Monad: RandomGenerator]: F[Unit] =
     for {
-      _ <- putStrLn("Starting The Program")
+      _ <- putStrLn("\nStarting The Program")
       cardRepositories = InMemoryCardsRepositoryInterpreter[F]
       zoneRepositories = InMemoryZonesRepositoryInterpreter[F]
       zonesServices = ZoneServices[F](zoneRepositories)
