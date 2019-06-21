@@ -69,7 +69,8 @@ class MainSpec extends TestSetup with FunSpecLike with Matchers {
     describe("Program should work") {
       it ("should work fine") {
         val resp =
-          s"""Starting The Program
+          s"""
+            Starting The Program
             ${Programs.inputs}
             Please enter the amount default[0]
             Card Created Successfully, Your Card Number is: 1 and balance is: 12.0
