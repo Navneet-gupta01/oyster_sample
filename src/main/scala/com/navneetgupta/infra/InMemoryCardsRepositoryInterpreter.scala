@@ -12,7 +12,7 @@ class InMemoryCardsRepositoryInterpreter[F[_]: Monad: RandomGenerator] extends C
 
   private val defaultAmount = 0.0
 
-  def nextLong() = RandomGenerator[F].getNextLong
+  def nextLong() = (RandomGenerator[F].getNextLong)
 
   override def createCard(amount: Option[Double]): F[OysterCard] =
     for {

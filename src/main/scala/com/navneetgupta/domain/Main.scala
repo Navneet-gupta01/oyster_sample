@@ -13,7 +13,7 @@ object Main extends IOApp {
     def readLn(): IO[String] = IO(scala.io.StdIn.readLine)
   }
   implicit val RandomGeneratorIO = new RandomGenerator[IO] {
-    override def getNextLong: IO[Long] = IO.pure(scala.util.Random.nextLong())
+    override def getNextLong: IO[Long] = IO.pure(Math.abs(scala.util.Random.nextLong()))
   }
 
   override def run(args: List[String]): IO[ExitCode] = for {
@@ -162,8 +162,7 @@ Please select Options from below Menu
       _ <- putStrLn("\nStarting The Program")
       cardRepositories = InMemoryCardsRepositoryInterpreter[F]
       zoneRepositories = InMemoryZonesRepositoryInterpreter[F]
-      zonesServices = ZoneServices[F](zoneRepositories)
-      cardServices = CardServices[F](cardRepositories, zonesServices)
+      cardServices = CardServices[F](cardRepositories, zoneRepositories)
       resp <- loop[F](cardServices)
     } yield resp
 }

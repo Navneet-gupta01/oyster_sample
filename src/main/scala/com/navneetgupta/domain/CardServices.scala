@@ -81,12 +81,6 @@ class CardServices[F[_]: RandomGenerator](cardsRepository: CardsRepository[F],
       .pure[F]
   }
 
-  // If User is trying to continuously IN multiple time, he should not be charger again.
-  private def isContinuousCheckIN(lastCheckIn: Date, currentCheckIN: Date): Boolean = {
-    (currentCheckIN.getTime-lastCheckIn.getTime) < 5000
-  }
-
-
   private def processTubeJourney(
                                   barrier: Barrier,
                                   card: OysterCard)(implicit M: Monad[F]): F[Either[ValidationError, Barrier]] = {
@@ -127,7 +121,6 @@ class CardServices[F[_]: RandomGenerator](cardsRepository: CardsRepository[F],
       fromZones <- zonesRepository.getZonesByStationCode(from.stationCode)
       toZones <- zonesRepository.getZonesByStationCode(to.stationCode)
     } yield {
-      //      val minZonesCrossed = zoneServices.getMinNumberOfZonesCrossed(fromZones, toZones)
       // refund the excess fare charged
       val minFare = minFareCalc(fromZones,toZones)
       val barrierC = to.copy(fare = minFare - MAX_TUBE_JOURNEY_FARE)
